@@ -1,0 +1,373 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.08 0 0);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.12 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.12 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.75 0.15 45);
+  --primary-foreground: oklch(0.08 0 0);
+  --secondary: oklch(0.18 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.15 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.18 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0 0);
+  --input: oklch(0.18 0 0);
+  --ring: oklch(0.75 0.15 45);
+  --chart-1: oklch(0.65 0.25 25);
+  --chart-2: oklch(0.55 0.25 240);
+  --chart-3: oklch(0.75 0.15 45);
+  --chart-4: oklch(0.45 0.15 180);
+  --chart-5: oklch(0.85 0.1 120);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.12 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.75 0.15 45);
+  --sidebar-primary-foreground: oklch(0.08 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-ring: oklch(0.75 0.15 45);
+
+  /* Game-specific colors */
+  --team-red: oklch(0.65 0.25 25);
+  --team-red-foreground: oklch(0.98 0 0);
+  --team-blue: oklch(0.55 0.25 240);
+  --team-blue-foreground: oklch(0.98 0 0);
+  --german-gold: oklch(0.75 0.15 45);
+  --german-gold-foreground: oklch(0.08 0 0);
+
+  /* Glass-morphism and gradient effects */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-hover: rgba(255, 255, 255, 0.2);
+}
+
+.dark {
+  --background: oklch(0.08 0 0);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.12 0 0);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.12 0 0);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.75 0.15 45);
+  --primary-foreground: oklch(0.08 0 0);
+  --secondary: oklch(0.18 0 0);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.15 0 0);
+  --muted-foreground: oklch(0.65 0 0);
+  --accent: oklch(0.18 0 0);
+  --accent-foreground: oklch(0.98 0 0);
+  --destructive: oklch(0.65 0.25 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.25 0 0);
+  --input: oklch(0.18 0 0);
+  --ring: oklch(0.75 0.15 45);
+  --chart-1: oklch(0.65 0.25 25);
+  --chart-2: oklch(0.55 0.25 240);
+  --chart-3: oklch(0.75 0.15 45);
+  --chart-4: oklch(0.45 0.15 180);
+  --chart-5: oklch(0.85 0.1 120);
+  --sidebar: oklch(0.12 0 0);
+  --sidebar-foreground: oklch(0.98 0 0);
+  --sidebar-primary: oklch(0.75 0.15 45);
+  --sidebar-primary-foreground: oklch(0.08 0 0);
+  --sidebar-accent: oklch(0.18 0 0);
+  --sidebar-accent-foreground: oklch(0.98 0 0);
+  --sidebar-border: oklch(0.25 0 0);
+  --sidebar-ring: oklch(0.75 0.15 45);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Game-specific color tokens */
+  --color-team-red: var(--team-red);
+  --color-team-red-foreground: var(--team-red-foreground);
+  --color-team-blue: var(--team-blue);
+  --color-team-blue-foreground: var(--team-blue-foreground);
+  --color-german-gold: var(--german-gold);
+  --color-german-gold-foreground: var(--german-gold-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* Custom team color utilities */
+.bg-team-red {
+  background-color: var(--color-team-red);
+}
+.text-team-red {
+  color: var(--color-team-red);
+}
+.bg-team-blue {
+  background-color: var(--color-team-blue);
+}
+.text-team-blue {
+  color: var(--color-team-blue);
+}
+.bg-german-gold {
+  background-color: var(--color-german-gold);
+}
+.text-german-gold {
+  color: var(--color-german-gold);
+}
+
+/* Codenames utility classes */
+.bg-codenames {
+  background-color: #8b4513;
+}
+
+.bg-codenames-light {
+  background-color: #a0522d;
+}
+
+.bg-codenames-red {
+  background-color: #dc143c;
+}
+
+.bg-codenames-blue {
+  background-color: #4682b4;
+}
+
+.bg-codenames-neutral {
+  background-color: #f5deb3;
+}
+
+.bg-codenames-assassin {
+  background-color: #2f2f2f;
+}
+
+.bg-codenames-yellow {
+  background-color: #ffd700;
+}
+
+.bg-codenames-green {
+  background-color: #32cd32;
+}
+
+.text-codenames-neutral {
+  color: #8b4513;
+}
+
+/* Glass-morphism utility classes for beautiful UI effects */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.glass:hover {
+  background: var(--glass-hover);
+}
+
+/* Card team styles matching user's game */
+.team-red {
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.2), rgba(139, 0, 0, 0.3));
+  border: 1px solid rgba(220, 20, 60, 0.3);
+  color: #ff6b6b;
+}
+
+.team-blue {
+  background: linear-gradient(135deg, rgba(70, 130, 180, 0.2), rgba(25, 25, 112, 0.3));
+  border: 1px solid rgba(70, 130, 180, 0.3);
+  color: #74c0fc;
+}
+
+.team-neutral {
+  background: linear-gradient(135deg, rgba(245, 222, 179, 0.2), rgba(210, 180, 140, 0.3));
+  border: 1px solid rgba(245, 222, 179, 0.3);
+  color: #ffd43b;
+}
+
+.team-assassin {
+  background: linear-gradient(135deg, rgba(47, 47, 47, 0.5), rgba(0, 0, 0, 0.7));
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  color: #adb5bd;
+}
+
+.spymaster-red {
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.3), rgba(139, 0, 0, 0.4));
+  border: 2px solid rgba(220, 20, 60, 0.5);
+  color: #ff6b6b;
+}
+
+.spymaster-blue {
+  background: linear-gradient(135deg, rgba(70, 130, 180, 0.3), rgba(25, 25, 112, 0.4));
+  border: 2px solid rgba(70, 130, 180, 0.5);
+  color: #74c0fc;
+}
+
+.spymaster-neutral {
+  background: linear-gradient(135deg, rgba(245, 222, 179, 0.3), rgba(210, 180, 140, 0.4));
+  border: 2px solid rgba(245, 222, 179, 0.5);
+  color: #ffd43b;
+}
+
+.spymaster-assassin {
+  background: linear-gradient(135deg, rgba(47, 47, 47, 0.6), rgba(0, 0, 0, 0.8));
+  border: 2px solid rgba(128, 128, 128, 0.5);
+  color: #adb5bd;
+}
+
+.unrevealed {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.unrevealed:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* 3D Card Flip Animation Styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+}
+
+/* Card flip transitions */
+.card-flip-container {
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out;
+}
+
+.card-flip-front,
+.card-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 0.375rem;
+}
+
+.card-flip-back {
+  transform: rotateY(180deg);
+}
+
+/* Codenames-specific card reveal animations */
+@keyframes cardReveal {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: rotateY(90deg) scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    transform: rotateY(180deg) scale(1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.card-reveal {
+  animation: cardReveal 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Dramatic effects for special cards */
+@keyframes assassinReveal {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  25% {
+    transform: rotateY(45deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    transform: rotateY(90deg) scale(1.15);
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+  }
+  75% {
+    transform: rotateY(135deg) scale(1.1);
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.5);
+  }
+  100% {
+    transform: rotateY(180deg) scale(1);
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+  }
+}
+
+.assassin-reveal {
+  animation: assassinReveal 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* Pulse effect for winning reveals */
+@keyframes winPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.win-pulse {
+  animation: winPulse 1s ease-in-out infinite;
+}
