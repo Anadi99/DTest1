@@ -81,7 +81,17 @@ export default function HomePage() {
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
               >
                 <Gamepad2 className="w-5 h-5 mr-2" />
-                Start Playing
+                Online Multiplayer
+              </Button>
+            </Link>
+            <Link href="/hot-seat">
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <Users className="w-5 h-5 mr-2" />
+                Local Hot-Seat
               </Button>
             </Link>
             <Link href="/vocabulary">
@@ -248,7 +258,17 @@ export default function HomePage() {
                     className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
                   >
                     <Gamepad2 className="w-5 h-5 mr-2" />
-                    Create Game
+                    Online Game
+                  </Button>
+                </Link>
+                <Link href="/hot-seat">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  >
+                    <Users className="w-5 h-5 mr-2" />
+                    Local Game
                   </Button>
                 </Link>
                 <Link href="/vocabulary">

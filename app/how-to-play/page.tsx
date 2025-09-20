@@ -335,7 +335,12 @@ export default function HowToPlayPage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/lobby">
               <Button size="lg" className="bg-german-gold text-german-gold-foreground hover:bg-german-gold/90">
-                Create Game
+                Online Multiplayer
+              </Button>
+            </Link>
+            <Link href="/hot-seat">
+              <Button size="lg" variant="outline">
+                Local Hot-Seat
               </Button>
             </Link>
             <Link href="/vocabulary">
