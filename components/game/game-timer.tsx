@@ -42,7 +42,7 @@ export function GameTimer({
   const [hasWarned, setHasWarned] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   
-  const soundEffects = useSoundEffects()
+  const { playCorrectGuess } = useSoundEffects()
 
   // Get current phase time limit
   const getCurrentTimeLimit = () => {
@@ -73,61 +73,18 @@ export function GameTimer({
           // Warning sound at 10 seconds
           if (newTime === 10 && !hasWarned) {
             setHasWarned(true)
-            // Play warning beep
-            try {
-              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-              const oscillator = audioContext.createOscillator()
-              const gainNode = audioContext.createGain()
-              oscillator.connect(gainNode)
-              gainNode.connect(audioContext.destination)
-              oscillator.frequency.value = 800
-              oscillator.type = 'sine'
-              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
-              oscillator.start()
-              oscillator.stop(audioContext.currentTime + 0.2)
-            } catch (e) {
-              console.log('Audio not available')
-            }
+            playWarningSound()
           }
 
           // Urgent warning sounds in last 5 seconds
           if (newTime <= 5 && newTime > 0) {
-            try {
-              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-              const oscillator = audioContext.createOscillator()
-              const gainNode = audioContext.createGain()
-              oscillator.connect(gainNode)
-              gainNode.connect(audioContext.destination)
-              oscillator.frequency.value = 1000
-              oscillator.type = 'square'
-              gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15)
-              oscillator.start()
-              oscillator.stop(audioContext.currentTime + 0.15)
-            } catch (e) {
-              console.log('Audio not available')
-            }
+            playUrgentSound()
           }
 
           // Time's up!
           if (newTime <= 0) {
             setIsActive(false)
-            try {
-              const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-              const oscillator = audioContext.createOscillator()
-              const gainNode = audioContext.createGain()
-              oscillator.connect(gainNode)
-              gainNode.connect(audioContext.destination)
-              oscillator.frequency.value = 400
-              oscillator.type = 'sawtooth'
-              gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
-              oscillator.start()
-              oscillator.stop(audioContext.currentTime + 0.5)
-            } catch (e) {
-              console.log('Audio not available')
-            }
+            playTimeUpSound()
             onTimeUp?.(currentPhase as "clue_giving" | "guessing")
             return 0
           }
@@ -147,6 +104,60 @@ export function GameTimer({
       }
     }
   }, [isActive, isPaused, isEnabled, hasWarned, onTimeUp, currentPhase])
+
+  const playWarningSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      oscillator.frequency.value = 800
+      oscillator.type = 'sine'
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2)
+      oscillator.start()
+      oscillator.stop(audioContext.currentTime + 0.2)
+    } catch (e) {
+      console.log('Audio not available')
+    }
+  }
+
+  const playUrgentSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      oscillator.frequency.value = 1000
+      oscillator.type = 'square'
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15)
+      oscillator.start()
+      oscillator.stop(audioContext.currentTime + 0.15)
+    } catch (e) {
+      console.log('Audio not available')
+    }
+  }
+
+  const playTimeUpSound = () => {
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioContext.createOscillator()
+      const gainNode = audioContext.createGain()
+      oscillator.connect(gainNode)
+      gainNode.connect(audioContext.destination)
+      oscillator.frequency.value = 400
+      oscillator.type = 'sawtooth'
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5)
+      oscillator.start()
+      oscillator.stop(audioContext.currentTime + 0.5)
+    } catch (e) {
+      console.log('Audio not available')
+    }
+  }
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -215,7 +226,7 @@ export function GameTimer({
   }
 
   return (
-    <Card className="w-48">
+    <Card className="w-52">
       <CardContent className="p-4">
         {/* Timer Display */}
         <div className="text-center mb-3">

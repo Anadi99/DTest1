@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Send } from "lucide-react"
+import { Send, Lightbulb, AlertTriangle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 interface ClueInputProps {
   onGiveClue: (clue: string, number: number) => void
@@ -19,6 +20,7 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
   const [clue, setClue] = useState("")
   const [number, setNumber] = useState("")
   const [error, setError] = useState("")
+  const [suggestions, setSuggestions] = useState<string[]>([])
 
   const handleSubmit = () => {
     if (!clue.trim()) {
@@ -37,6 +39,14 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
     setNumber("")
   }
 
+  // Generate clue suggestions based on common German word categories
+  const generateSuggestions = () => {
+    const commonClues = [
+      "Tiere", "Essen", "Farben", "Familie", "Haus", "Natur", "Transport", "Körper", "Kleidung", "Wetter"
+    ]
+    setSuggestions(commonClues.slice(0, 5))
+  }
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSubmit()
@@ -44,7 +54,7 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-3xl mx-auto">
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="text-center">
@@ -52,8 +62,35 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
             <p className="text-sm text-muted-foreground">Enter a one-word clue and the number of words it relates to</p>
           </div>
 
+          {/* Clue suggestions */}
+          <div className="text-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={generateSuggestions}
+              className="gap-2 text-xs"
+            >
+              <Lightbulb className="w-3 h-3" />
+              Need inspiration?
+            </Button>
+            {suggestions.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1 justify-center">
+                {suggestions.map((suggestion) => (
+                  <Badge
+                    key={suggestion}
+                    variant="outline"
+                    className="cursor-pointer hover:bg-muted text-xs"
+                    onClick={() => setClue(suggestion)}
+                  >
+                    {suggestion}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
           {error && (
             <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -71,7 +108,7 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
                 onChange={(e) => setClue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={disabled}
-                className="text-center font-medium"
+                className="text-center font-medium text-lg"
               />
             </div>
 
@@ -89,13 +126,14 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
                 onChange={(e) => setNumber(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={disabled}
-                className="text-center"
+                className="text-center text-lg font-bold"
               />
             </div>
 
             <Button
               onClick={handleSubmit}
               disabled={disabled || !clue.trim() || !number.trim()}
+              size="lg"
               className={`px-8 ${
                 team === "red"
                   ? "bg-team-red hover:bg-team-red/90 text-team-red-foreground"
@@ -107,8 +145,14 @@ export function ClueInput({ onGiveClue, disabled = false, team }: ClueInputProps
             </Button>
           </div>
 
-          <div className="text-xs text-muted-foreground text-center">
-            Remember: Give only one-word clues that relate to multiple words on the board
+          <div className="bg-muted/50 rounded-lg p-3">
+            <div className="text-xs text-muted-foreground text-center space-y-1">
+              <div className="font-medium">Clue Rules:</div>
+              <div>• Give only one-word clues (no compound words or phrases)</div>
+              <div>• Cannot use words that appear on the board</div>
+              <div>• Number indicates how many words relate to your clue</div>
+              <div>• Your team gets [number + 1] total guesses</div>
+            </div>
           </div>
         </div>
       </CardContent>

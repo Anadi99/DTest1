@@ -1,5 +1,5 @@
 import type { WordCard, Game, GamePlayer, Clue } from "./types"
-import { getRandomWords, type GermanWord } from "./german-vocabulary-comprehensive"
+import { getRandomWords, getWordsByDifficulty, type GermanWord } from "./german-vocabulary-comprehensive"
 
 export interface GameState {
   game: Game
@@ -252,7 +252,16 @@ export class GameLogic {
     difficulty: "A1" | "A2" | "B1" | "B2" = "A1",
     gameId?: string
   ): WordCard[] {
-    // Get 25 random German words for the specified difficulty
+    // Get words for the specified difficulty level
+    const availableWords = getWordsByDifficulty(difficulty)
+    
+    if (availableWords.length < 25) {
+      // If not enough words for this difficulty, mix with easier levels
+      console.warn(`Not enough ${difficulty} words, mixing with other levels`)
+      const allWords = getRandomWords(25) // Get from all levels
+      return this.createGameBoardFromWords(allWords, gameId)
+    }
+    
     const words = getRandomWords(25, difficulty)
     
     if (words.length < 25) {
@@ -282,6 +291,16 @@ export class GameLogic {
     }))
   }
 
+  static validateGameBoard(wordCards: WordCard[]): boolean {
+    if (wordCards.length !== 25) return false
+    
+    const redCards = wordCards.filter(c => c.card_type === "red").length
+    const blueCards = wordCards.filter(c => c.card_type === "blue").length
+    const neutralCards = wordCards.filter(c => c.card_type === "neutral").length
+    const assassinCards = wordCards.filter(c => c.card_type === "assassin").length
+    
+    return redCards === 9 && blueCards === 8 && neutralCards === 7 && assassinCards === 1
+  }
   static createGameBoardFromWords(words: GermanWord[], gameId?: string): WordCard[] {
     if (words.length < 25) {
       throw new Error(`Need at least 25 words to create a game board. Provided: ${words.length}`)
@@ -308,5 +327,34 @@ export class GameLogic {
       position: index + 1,
       revealed: false,
     }))
+  }
+
+  static calculateGameScore(gameState: GameState): { red: number; blue: number } {
+    const redScore = gameState.wordCards.filter(c => c.card_type === "red" && c.revealed).length
+    const blueScore = gameState.wordCards.filter(c => c.card_type === "blue" && c.revealed).length
+    return { red: redScore, blue: blueScore }
+  }
+
+  static isGameComplete(gameState: GameState): { isComplete: boolean; winner?: "red" | "blue" } {
+    // Check for assassin reveal
+    const assassinRevealed = gameState.wordCards.some(c => c.card_type === "assassin" && c.revealed)
+    if (assassinRevealed) {
+      // Find who revealed the assassin
+      const assassinCard = gameState.wordCards.find(c => c.card_type === "assassin" && c.revealed)
+      if (assassinCard?.revealed_by) {
+        const revealingPlayer = gameState.players.find(p => p.player_id === assassinCard.revealed_by)
+        const winner = revealingPlayer?.team === "red" ? "blue" : "red"
+        return { isComplete: true, winner }
+      }
+    }
+
+    // Check for team completion
+    const redRemaining = gameState.wordCards.filter(c => c.card_type === "red" && !c.revealed).length
+    const blueRemaining = gameState.wordCards.filter(c => c.card_type === "blue" && !c.revealed).length
+
+    if (redRemaining === 0) return { isComplete: true, winner: "red" }
+    if (blueRemaining === 0) return { isComplete: true, winner: "blue" }
+
+    return { isComplete: false }
   }
 }

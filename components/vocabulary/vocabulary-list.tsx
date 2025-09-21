@@ -9,6 +9,7 @@ import { Volume2, Heart, BookOpen, Trash2 } from "lucide-react"
 import { gameStorage } from "@/lib/localStorage"
 import { useToast } from "@/hooks/use-toast"
 import { motion } from "framer-motion"
+import { germanVocabulary, getWordsByDifficulty, getWordsByCategory } from "@/lib/german-vocabulary-comprehensive"
 
 interface VocabularyWord {
   id: string
@@ -41,12 +42,25 @@ export function VocabularyList({
       try {
         setIsLoading(true)
 
-        // Initialize sample data if needed
-        gameStorage.initializeSampleData()
-
-        // Load words from localStorage
-        const words = gameStorage.getWords()
-        setVocabularyWords(words)
+        // Load from comprehensive vocabulary database
+        const comprehensiveWords = germanVocabulary.map(word => ({
+          id: `${word.german}_${word.difficulty}`,
+          german: word.german,
+          english: word.english,
+          difficulty: word.difficulty,
+          createdAt: new Date().toISOString()
+        }))
+        
+        // Also load any custom words from localStorage
+        const customWords = gameStorage.getWords()
+        
+        // Combine and deduplicate
+        const allWords = [...comprehensiveWords, ...customWords]
+        const uniqueWords = allWords.filter((word, index, self) => 
+          index === self.findIndex(w => w.german === word.german && w.difficulty === word.difficulty)
+        )
+        
+        setVocabularyWords(uniqueWords)
 
         // Load favorites from localStorage
         const savedFavorites = localStorage.getItem("vocabulary-favorites")
@@ -76,8 +90,10 @@ export function VocabularyList({
       word.english.toLowerCase().includes(searchTerm.toLowerCase())
 
     const matchesDifficulty = selectedDifficulty === "all" || word.difficulty === selectedDifficulty
+    const matchesCategory = selectedCategory === "all" || 
+      germanVocabulary.find(w => w.german === word.german)?.category === selectedCategory
 
-    return matchesSearch && matchesDifficulty
+    return matchesSearch && matchesDifficulty && matchesCategory
   })
 
   const toggleFavorite = (wordId: string) => {
@@ -162,6 +178,7 @@ export function VocabularyList({
                             if ("speechSynthesis" in window) {
                               const utterance = new SpeechSynthesisUtterance(word.german)
                               utterance.lang = "de-DE"
+                              utterance.rate = 0.8
                               speechSynthesis.speak(utterance)
                             }
                           }}
@@ -173,7 +190,24 @@ export function VocabularyList({
                       <div className="text-lg text-white">{word.english}</div>
                       <div className="flex items-center gap-2">
                         <Badge className={getDifficultyColor(word.difficulty)}>{word.difficulty}</Badge>
+                        {(() => {
+                          const fullWord = germanVocabulary.find(w => w.german === word.german)
+                          return fullWord ? (
+                            <Badge variant="outline" className="text-xs bg-white/10 border-white/20 text-white">
+                              {fullWord.category}
+                            </Badge>
+                          ) : null
+                        })()}
                       </div>
+                      {(() => {
+                        const fullWord = germanVocabulary.find(w => w.german === word.german)
+                        return fullWord?.exampleDE ? (
+                          <div className="text-sm text-white/80 italic">
+                            <div>"{fullWord.exampleDE}"</div>
+                            <div className="text-white/60">"{fullWord.exampleEN}"</div>
+                          </div>
+                        ) : null
+                      })()}
                     </div>
                     <div className="flex flex-col gap-2">
                       <Button
@@ -187,14 +221,17 @@ export function VocabularyList({
                       <Button variant="ghost" size="sm" className="text-white/70 hover:text-white hover:bg-white/10">
                         <BookOpen className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => deleteWord(word.id)}
-                        className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      {/* Only show delete for custom words */}
+                      {!germanVocabulary.find(w => w.german === word.german) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => deleteWord(word.id)}
+                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </Card>

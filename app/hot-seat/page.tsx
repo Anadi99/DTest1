@@ -9,11 +9,13 @@ import { ArrowLeft, Users, Gamepad2 } from "lucide-react"
 import { HotSeatLobby } from "@/components/game/hot-seat-lobby"
 import { HotSeatMode } from "@/components/game/hot-seat-mode"
 import { EnhancedGameBoard } from "@/components/game/enhanced-game-board"
+import { WinCelebration } from "@/components/game/win-celebration"
 import { GameTimer } from "@/components/game/game-timer"
 import { GameLog, type GameLogEvent } from "@/components/game/game-log"
 import { ClueInput } from "@/components/game/clue-input"
 import { GameLogic, type GameState } from "@/lib/game-logic"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 interface HotSeatPlayer {
   id: string
@@ -189,8 +191,54 @@ export default function HotSeatPage() {
       }
       setGameEvents(prev => [endEvent, ...prev])
       
+  const handleNewGame = () => {
+    // Reset game state for a new game
+    setGamePhase("setup")
+    setGameState(null)
+    setCurrentPlayer(null)
+    setGameEvents([])
+  }
       switchToNextPlayer()
+  const handleReturnHome = () => {
+    router.push("/")
+  }
     }
+  const handleExportLog = () => {
+    const gameData = {
+      gameId: gameState?.game.id,
+      roomCode: gameState?.game.room_code,
+      gameStartTime: gameStartTime.toISOString(),
+      gameEndTime: new Date().toISOString(),
+      duration: Math.round((new Date().getTime() - gameStartTime.getTime()) / 1000 / 60),
+      players: gameConfig?.players.map(p => ({
+        name: p.name,
+        team: p.team,
+        role: p.role
+      })),
+      events: gameEvents.map(event => ({
+        timestamp: event.timestamp.toISOString(),
+        type: event.type,
+        message: event.message,
+        team: event.team,
+        metadata: event.metadata
+      })),
+      finalBoard: gameState?.wordCards.map(card => ({
+        word: card.german_word,
+        translation: card.english_translation,
+        team: card.card_type,
+        revealed: card.revealed
+      }))
+    }
+  }
+    const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `deutchnames-hotseat-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   const switchToNextPlayer = () => {
@@ -315,6 +363,26 @@ export default function HotSeatPage() {
     )
   }
 
+  // Show win celebration if game is over
+  if (gamePhase === "ended" && gameState.winner) {
+    return (
+      <div className="min-h-screen bg-background">
+        <WinCelebration
+          gameState={gameState}
+          players={gameConfig.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            team: p.team,
+            role: p.role
+          }))}
+          gameStartTime={gameStartTime}
+          onNewGame={handleNewGame}
+          onReturnHome={handleReturnHome}
+          onExportLog={handleExportLog}
+        />
+      </div>
+    )
+  }
   return (
     <div className="min-h-screen bg-background">
       {/* Game Header */}
@@ -339,9 +407,12 @@ export default function HotSeatPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            <Badge variant="outline" className="gap-1">
+            <Badge variant="outline" className={cn(
+              "gap-1",
+              gameState.game.current_turn === "red" ? "border-red-300 text-red-600" : "border-blue-300 text-blue-600"
+            )}>
               <Users className="w-3 h-3" />
-              {gameConfig.players.length} players
+              {gameState.game.current_turn?.toUpperCase()} Turn
             </Badge>
             {gameState.winner && (
               <Badge className={cn(

@@ -150,7 +150,9 @@ export function GameLog({
         player: event.player,
         metadata: event.metadata
       })),
-      stats: generateGameStats()
+      stats: generateGameStats(),
+      exportedAt: new Date().toISOString(),
+      version: "1.0.0"
     }
 
     const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: 'application/json' })
@@ -177,6 +179,14 @@ export function GameLog({
     })
     textLog += `\n`
 
+    textLog += `GAME STATISTICS:\n`
+    const stats = generateGameStats()
+    textLog += `  Total Clues: ${stats.totalClues}\n`
+    textLog += `  Red Team Clues: ${stats.redClues}\n`
+    textLog += `  Blue Team Clues: ${stats.blueClues}\n`
+    textLog += `  Total Card Reveals: ${stats.totalReveals}\n`
+    textLog += `  Red Team Efficiency: ${stats.efficiency.red}%\n`
+    textLog += `  Blue Team Efficiency: ${stats.efficiency.blue}%\n\n`
     textLog += `GAME EVENTS:\n`
     events.forEach(event => {
       const time = event.timestamp.toLocaleTimeString()
@@ -184,6 +194,8 @@ export function GameLog({
       textLog += `${time} ${team} ${event.message}\n`
     })
 
+    textLog += `\n=== END OF LOG ===\n`
+    textLog += `Exported: ${new Date().toLocaleString()}\n`
     const blob = new Blob([textLog], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -462,10 +474,12 @@ export function GameLog({
                       <div>
                         <div>Duration: {Math.round((new Date().getTime() - gameStartTime.getTime()) / 1000 / 60)} minutes</div>
                         <div>Total Events: {events.length}</div>
+                        <div>Total Clues: {generateGameStats().totalClues}</div>
                       </div>
                       <div>
                         <div>Players: {players.length}</div>
                         <div>Room: {roomCode}</div>
+                        <div>Cards Revealed: {generateGameStats().totalReveals}</div>
                       </div>
                     </div>
                   </div>

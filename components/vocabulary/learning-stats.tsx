@@ -4,13 +4,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Trophy, Target, Clock, TrendingUp, Star, BookOpen } from "lucide-react"
+import { getDifficultyStats, getCategories } from "@/lib/german-vocabulary-comprehensive"
 
 export function LearningStats() {
-  // Mock learning statistics
+  // Get real vocabulary statistics
+  const vocabStats = getDifficultyStats()
+  const categories = getCategories()
+  
+  // Mock learning progress (in a real app, this would come from user data)
   const stats = {
-    totalWords: 150,
-    learnedWords: 89,
-    masteredWords: 45,
+    totalWords: vocabStats.total,
+    learnedWords: Math.floor(vocabStats.total * 0.6), // 60% learned
+    masteredWords: Math.floor(vocabStats.total * 0.3), // 30% mastered
     currentStreak: 7,
     longestStreak: 15,
     totalGamesPlayed: 23,
@@ -21,21 +26,18 @@ export function LearningStats() {
   }
 
   const difficultyStats = [
-    { level: "Beginner", learned: 35, total: 50, color: "bg-green-500" },
-    { level: "Intermediate", learned: 28, total: 60, color: "bg-german-gold" },
-    { level: "Advanced", learned: 26, total: 40, color: "bg-team-red" },
+    { level: "A1", learned: Math.floor(vocabStats.A1 * 0.8), total: vocabStats.A1, color: "bg-green-500" },
+    { level: "A2", learned: Math.floor(vocabStats.A2 * 0.6), total: vocabStats.A2, color: "bg-blue-500" },
+    { level: "B1", learned: Math.floor(vocabStats.B1 * 0.4), total: vocabStats.B1, color: "bg-orange-500" },
+    { level: "B2", learned: Math.floor(vocabStats.B2 * 0.2), total: vocabStats.B2, color: "bg-red-500" },
   ]
 
-  const categoryStats = [
-    { category: "Animals", learned: 15, total: 20 },
-    { category: "Food & Drink", learned: 18, total: 25 },
-    { category: "Home & Family", learned: 12, total: 18 },
-    { category: "Nature", learned: 14, total: 22 },
-    { category: "Transport", learned: 8, total: 15 },
-    { category: "Places", learned: 10, total: 16 },
-    { category: "Objects", learned: 12, total: 20 },
-    { category: "Abstract", learned: 0, total: 14 },
-  ]
+  // Generate category stats based on actual vocabulary
+  const categoryStats = categories.slice(0, 8).map(category => {
+    const total = Math.floor(Math.random() * 25) + 10 // Mock total
+    const learned = Math.floor(total * (Math.random() * 0.8 + 0.2)) // Mock learned
+    return { category, learned, total }
+  })
 
   const recentAchievements = [
     { title: "Word Master", description: "Learned 50 words", icon: Trophy, date: "2 days ago" },
@@ -141,7 +143,12 @@ export function LearningStats() {
             {difficultyStats.map((stat, index) => (
               <div key={index} className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">{stat.level}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{stat.level}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {Math.round((stat.learned / stat.total) * 100)}%
+                    </Badge>
+                  </div>
                   <span className="text-sm text-muted-foreground">
                     {stat.learned} / {stat.total}
                   </span>
@@ -157,7 +164,7 @@ export function LearningStats() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="w-5 h-5" />
-              Category Progress
+              Category Progress ({categories.length} total)
             </CardTitle>
             <CardDescription>Words learned by category</CardDescription>
           </CardHeader>

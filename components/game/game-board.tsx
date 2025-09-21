@@ -11,6 +11,7 @@ import { CardFlipAnimation } from "./card-flip-animation"
 import { ColorblindPatterns } from "./colorblind-patterns"
 import { useSoundEffects } from "@/hooks/use-sound-effects"
 import { Confetti, Fireworks } from "@/components/ui/confetti"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface GameBoardProps {
   showSpymasterView?: boolean
@@ -43,6 +44,7 @@ export function GameBoard({
   const [selectedCards, setSelectedCards] = useState<string[]>([])
   const [showCelebration, setShowCelebration] = useState(false)
   const [showHints, setShowHints] = useState(false)
+  const [lastRevealedCard, setLastRevealedCard] = useState<string | null>(null)
   
   const { playCardFlip, playCardReveal, playWin, playAssassin } = useSoundEffects()
 
@@ -68,6 +70,10 @@ export function GameBoard({
       }, 300)
     }
 
+    // Track last revealed card for special effects
+    setLastRevealedCard(cardId)
+    setTimeout(() => setLastRevealedCard(null), 1000)
+
     if (onCardClick) {
       onCardClick(cardId)
     }
@@ -83,25 +89,29 @@ export function GameBoard({
     if (gameState?.winner && soundEnabled) {
       playWin()
       setShowCelebration(true)
+      // Auto-hide celebration after 10 seconds
+      setTimeout(() => setShowCelebration(false), 10000)
     }
-  }
+  }, [gameState?.winner, soundEnabled, playWin])
 
   const getCardStyle = (card: any) => {
     const isRevealed = card.revealed
     const isClickable = canInteract && !isRevealed
     const isHovered = hoveredCard === card.id
     const isSelected = selectedCards.includes(card.id)
+    const isLastRevealed = lastRevealedCard === card.id
     
     // Base card styling - matches real Codenames proportions
-    const baseClasses = "relative w-full h-24 rounded-lg flex flex-col items-center justify-center text-center font-semibold text-sm transition-all duration-300 border-2 select-none group"
+    const baseClasses = "relative w-full h-24 rounded-lg flex flex-col items-center justify-center text-center font-semibold text-sm transition-all duration-300 border-2 select-none group overflow-hidden"
     
     if (isRevealed) {
       // Revealed cards show actual team colors
+      const pulseEffect = isLastRevealed ? "animate-pulse" : ""
       switch (card.card_type) {
         case "red":
           return cn(
             baseClasses, 
-            "transform scale-95 shadow-lg",
+            "transform scale-95 shadow-lg", pulseEffect,
             highContrast 
               ? "bg-red-600 text-white border-black" 
               : "bg-red-500 text-white border-red-600"
@@ -109,7 +119,7 @@ export function GameBoard({
         case "blue":
           return cn(
             baseClasses, 
-            "transform scale-95 shadow-lg",
+            "transform scale-95 shadow-lg", pulseEffect,
             highContrast 
               ? "bg-blue-600 text-white border-black" 
               : "bg-blue-500 text-white border-blue-600"
@@ -117,7 +127,7 @@ export function GameBoard({
         case "neutral":
           return cn(
             baseClasses, 
-            "transform scale-95 shadow-lg",
+            "transform scale-95 shadow-lg", pulseEffect,
             highContrast 
               ? "bg-yellow-400 text-black border-black" 
               : "bg-yellow-500 text-white border-yellow-600"
@@ -125,7 +135,7 @@ export function GameBoard({
         case "assassin":
           return cn(
             baseClasses, 
-            "transform scale-95 shadow-lg",
+            "transform scale-95 shadow-lg animate-pulse",
             highContrast 
               ? "bg-black text-white border-white" 
               : "bg-gray-900 text-white border-gray-700"
@@ -230,17 +240,20 @@ export function GameBoard({
       )}
 
       {/* Classic Codenames 5x5 Grid */}
-      <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-6 rounded-lg shadow-inner">
+      <TooltipProvider>
+        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 p-6 rounded-lg shadow-inner">
         <div className="grid grid-cols-5 gap-3">
           {wordCards.map((card) => (
             <div key={card.id} className="relative">
-              <CardFlipAnimation
-                isRevealed={card.revealed}
-                cardType={card.card_type}
-                onFlipComplete={() => {
-                  console.log(`Card ${card.german_word} revealed as ${card.card_type}!`)
-                }}
-              >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CardFlipAnimation
+                    isRevealed={card.revealed}
+                    cardType={card.card_type}
+                    onFlipComplete={() => {
+                      console.log(`Card ${card.german_word} revealed as ${card.card_type}!`)
+                    }}
+                  >
                 <motion.div
                   className={getCardStyle(card)}
                   onClick={() => handleCardClick(card.id)}
@@ -330,11 +343,25 @@ export function GameBoard({
                     />
                   )}
                 </motion.div>
-              </CardFlipAnimation>
+                  </CardFlipAnimation>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <div className="text-center space-y-1">
+                    <div className="font-semibold">{card.german_word}</div>
+                    <div className="text-sm">{card.english_translation}</div>
+                    {(playerRole === "spymaster" || showSpymasterView) && !card.revealed && (
+                      <div className="text-xs opacity-75">
+                        Team: {card.card_type.toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
             </div>
           ))}
         </div>
-      </div>
+        </div>
+      </TooltipProvider>
       
       {/* Board Controls */}
       <div className="flex items-center justify-between">

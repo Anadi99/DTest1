@@ -13,6 +13,7 @@ import { ArrowLeft, Search, Plus, BookOpen, Brain, Trophy, Volume2, Gamepad2 } f
 import { VocabularyList } from "@/components/vocabulary/vocabulary-list"
 import { LearningStats } from "@/components/vocabulary/learning-stats"
 import { AddWordDialog } from "@/components/vocabulary/add-word-dialog"
+import { getCategories } from "@/lib/german-vocabulary-comprehensive"
 import { motion } from "framer-motion"
 
 export default function VocabularyPage() {
@@ -21,6 +22,8 @@ export default function VocabularyPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState("all")
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+  const categories = getCategories()
 
   const handleWordAdded = () => {
     setRefreshTrigger((prev) => prev + 1)
@@ -294,14 +297,11 @@ export default function VocabularyPage() {
                               Milch
                             </Badge>
                             <Badge className="text-xs cursor-pointer bg-purple-600 hover:bg-purple-700 text-white">
-                              Tisch
-                            </Badge>
-                            <Badge className="text-xs cursor-pointer bg-purple-600 hover:bg-purple-700 text-white">
-                              Vogel
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
+                      {categories.map(category => (
+                        <SelectItem key={category} value={category}>
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </SelectItem>
+                      ))}
                     </CardContent>
                   </Card>
                 </div>
